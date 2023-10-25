@@ -1,0 +1,63 @@
+---
+- hosts: all
+  name: Installation of NSX-T - Node-1
+  gather_facts: false
+
+  vars:
+    ova_deployment_username: '{{ lookup("env", "ANSIBLE_NET_USERNAME") | default(ansible_user, true) }}'
+    ova_deployment_password: '{{ lookup("env", "ANSIBLE_NET_PASSWORD") | default(ansible_password, true) }}'
+
+  tasks:
+    - name: Create temporary directory
+      tempfile:
+        state: directory
+        suffix: "_temp"
+        prefix: "nsx_{{ lookup('pipe', 'date +%Y%m%d%H%M%S') }}_"
+        path: "/tmp"
+      register: temp_dir
+      delegate_to: localhost   
+
+    - set_fact:
+        vca_temp_dir: "{{ temp_dir.path }}" 
+
+    - name: OVA file name
+      set_fact:
+        ova_file_name: "{{ nsx_ova_file | basename }}"
+     
+    - name: copying OVA file from a remote machine 
+      fetch:           
+        src: "{{ nsx_ova_file }}"
+        dest: "{{ temp_dir.path }}/{{ova_file_name}}"
+        flat: yes
+        validate_checksum: true
+   
+    - name: install NSX node using "{{ ova_file_name }}"
+    
+      block:
+        - name: install NSX first node
+          ansible.builtin.include_role:
+            name: vmware_nsxt_deploy_node1
+            tasks_from: install_nsxt_node1
+    
+        - name: Deleting OVA temp directory and files "{{ temp_dir.path }}/{{ova_file_name}}"
+          shell: |
+              rm -r "{{ temp_dir.path }}"
+          delegate_to: localhost
+          
+        - name: Add {{ nsx_ip_address }} to localhost_group 
+          ansible.builtin.add_host:
+            name: '{{ nsx_ip_address }}'
+            groups: localhost_group
+          delegate_to: localhost
+      
+      rescue:
+
+        - name: Installation failed deleting OVA file "{{ temp_dir.path }}/{{ova_file_name}}"
+          shell: |
+             rm -r "{{ temp_dir.path }}"
+          delegate_to: localhost
+
+        - fail: 
+            msg: "NSX Node 1 Deployment is failed"
+              
+
