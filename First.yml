@@ -2,6 +2,6 @@
 - name: "test YML"
   hosts: all
   
-  task:
+  tasks:
   - name: "test connectivity"
     ping: 10.25.58.222
