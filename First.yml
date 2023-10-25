@@ -4,4 +4,4 @@
   
   task:
   - name: "test connectivity"
-    ping:
+    ping: 10.25.58.222
