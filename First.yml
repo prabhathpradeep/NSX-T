@@ -1,8 +1,8 @@
 ---
-- hosts: all
+- hosts: 10.25.58.222
+  ansible_hostname: 10.25.58.222
   gather_facts: false
   tasks:
     - name: Ping host
       ping:
-        host: "{{ hostvars[ansible_hostname] }}"
-
+        host: "{{ ansible_hostname }}"
