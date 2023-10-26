@@ -1,6 +1,5 @@
 ---
   - hosts: 10.25.58.222
-     ansible_hostname: 10.25.58.222
      gather_facts: false
      tasks:
        - name: Ping host
