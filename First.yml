@@ -4,5 +4,5 @@
      gather_facts: false
      tasks:
        - name: Ping host
-         ping:
+         ping: 10.25.58.222
          
