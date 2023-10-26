@@ -1,6 +1,5 @@
 ---
-  - hosts: 10.25.58.222
-     tasks:
-       - name: Ping host
-         ping: 10.25.58.222
-         
+- hosts: 10.25.58.222
+  tasks:
+    - ping: 10.25.58.222
+        
